@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class NewYorkTimesService
+class NewYorkTimesService implements DataFetchingServiceInterface
 {
     protected $apiKey;
     protected $client;

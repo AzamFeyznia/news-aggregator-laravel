@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Factories\DataFetchingFactory;
+use App\Factories\DataFetchingFactoryInterface;
 use App\Repositories\ArticleRepository;
 use App\Repositories\ArticleRepositoryInterface;
 use App\Services\GuardianAPIService;
@@ -33,6 +35,9 @@ class DataFetchingServiceProvider extends ServiceProvider
         $this->app->bind(NewYorkTimesService::class, function ($app) {
             return new NewYorkTimesService(config('services.nytimes.key'));
         });
+
+        // Bind the DataFetchingFactoryInterface to its implementation
+        $this->app->bind(DataFetchingFactoryInterface::class, DataFetchingFactory::class);
     }
 
     /**

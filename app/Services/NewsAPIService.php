@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class NewsAPIService
+class NewsAPIService implements DataFetchingServiceInterface
 {
     protected $apiKey;
     protected $client;

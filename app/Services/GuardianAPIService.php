@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class GuardianAPIService
+class GuardianAPIService implements DataFetchingServiceInterface
 {
     protected $apiKey;
     protected $client;
@@ -21,7 +21,7 @@ class GuardianAPIService
         ]);
     }
 
-    public function getArticles(string $query = null, int $pageSize = 10): Collection
+    public function getArticles(string $query = null, string $category = null, int $pageSize = 10): Collection
     {
         try {
             $response = $this->client->request('GET', 'search', [

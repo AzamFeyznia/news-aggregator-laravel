@@ -3,10 +3,9 @@
 namespace app\Console\Commands;
 
 use App\Repositories\ArticleRepositoryInterface;
-use App\Services\GuardianAPIService;
-use App\Services\NewsAPIService;
-use App\Services\NewYorkTimesService;
+use App\Factories\DataFetchingFactoryInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class FetchArticles extends Command
 {
@@ -15,10 +14,8 @@ class FetchArticles extends Command
     protected $description = 'Fetch articles from various sources and store them in the database';
 
     public function __construct(
-        protected NewsAPIService $newsApiService,
-        protected GuardianAPIService $guardianApiService,
-        protected NewYorkTimesService $newYorkTimesService,
-        protected ArticleRepositoryInterface $articleRepository
+        protected ArticleRepositoryInterface $articleRepository,
+        protected DataFetchingFactoryInterface $dataFetchingFactory,
     )
     {
         parent::__construct();
@@ -28,11 +25,20 @@ class FetchArticles extends Command
     {
         $this->info('Fetching articles...');
 
-        $newsArticles = $this->newsApiService->getArticles();
-        $guardianArticles = $this->guardianApiService->getArticles();
-        $newYorkTimesArticles = $this->newYorkTimesService->getArticles();
+        $sources = ['newsapi', 'guardian', 'nytimes'];
+        $allArticles = collect();
 
-        $allArticles = $newsArticles->concat($guardianArticles)->concat($newYorkTimesArticles);
+        foreach ($sources as $source) {
+            try {
+                $service = $this->dataFetchingFactory->create($source);
+                $articles = $service->getArticles();
+                $allArticles = $allArticles->concat($articles);
+            } catch (\InvalidArgumentException $e) {
+                Log::error("Error fetching articles from $source: " . $e->getMessage());
+                $this->error("Error fetching articles from $source: " . $e->getMessage());
+                continue; // Skip to the next source
+            }
+        }
 
         $this->articleRepository->saveMany($allArticles);
 
