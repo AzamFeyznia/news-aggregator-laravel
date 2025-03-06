@@ -5,7 +5,9 @@ namespace App\Repositories;
 use App\DataTransferObjects\ArticleData;
 use App\Models\Article;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
@@ -17,19 +19,27 @@ class ArticleRepository implements ArticleRepositoryInterface
      */
     public function save(ArticleData $articleData): void
     {
-        $article = Article::where('url', $articleData->url)->first();
+        DB::beginTransaction();
 
-        if (!$article) {
-            Article::create([
-                'title' => $articleData->title,
-                'description' => $articleData->description,
-                'content' => $articleData->content,
-                'url' => $articleData->url,
-                'source' => $articleData->source,
-                'category' => $articleData->category,
-                'published_at' => $articleData->published_at,
-            ]);
-            Log::info('Article created: ' . $articleData->url);
+        try {
+            Article::updateOrCreate(
+                ['url' => $articleData->url], // Find by URL
+                [
+                    'title' => $articleData->title,
+                    'description' => $articleData->description,
+                    'content' => $articleData->content,
+                    'source' => $articleData->source,
+                    'category' => $articleData->category,
+                    'published_at' => $articleData->published_at,
+                ]
+            );
+            Log::info('Article updated or created: ' . $articleData->url);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error('Error saving article: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -41,8 +51,32 @@ class ArticleRepository implements ArticleRepositoryInterface
      */
     public function saveMany(Collection $articleDataCollection): void
     {
-        foreach ($articleDataCollection as $articleData) {
-            $this->save($articleData);
+        DB::beginTransaction();
+
+        try {
+            $articleDataCollection->chunk(100, function ($chunk) {
+                $records = $chunk->map(function (ArticleData $data) {
+                    return [
+                        'title' => $data->title,
+                        'description' => $data->description,
+                        'content' => $data->content,
+                        'url' => $data->url,
+                        'source' => $data->source,
+                        'category' => $data->category,
+                        'published_at' => $data->published_at,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                })->toArray();
+
+                Article::insertOrIgnore($records);
+            });
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error('Error saving multiple articles: ' . $e->getMessage());
+            throw $e;
         }
     }
 
