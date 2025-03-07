@@ -6,12 +6,15 @@ use App\DataTransferObjects\ArticleData;
 use App\Models\Article;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
+    private $cacheTtl = 3600;
+
     /**
      * Saves a new article to the database.
      *
@@ -34,6 +37,9 @@ class ArticleRepository implements ArticleRepositoryInterface
                     'published_at' => $articleData->published_at,
                 ]
             );
+
+            $this->clearCache();
+
             Log::info('Article updated or created: ' . $articleData->url);
 
             DB::commit();
@@ -73,6 +79,8 @@ class ArticleRepository implements ArticleRepositoryInterface
 
             Article::insertOrIgnore($records);
 
+            $this->clearCache();
+
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
@@ -88,7 +96,9 @@ class ArticleRepository implements ArticleRepositoryInterface
      */
     public function getAll(): Collection
     {
-        return Article::all();
+        return Cache::remember('articles.all', $this->cacheTtl, function () {
+            return Article::all();
+        });
     }
 
     /**
@@ -111,13 +121,27 @@ class ArticleRepository implements ArticleRepositoryInterface
      */
     public function search(array $criteria, int $perPage = 10) : LengthAwarePaginator
     {
-        $query = Article::query();
+        $cacheKey = 'articles.search:' . md5(serialize($criteria) . $perPage);
 
-        foreach ($criteria as $key => $value) {
-            $query->where($key, 'like', '%' . $value . '%');
-        }
+        return Cache::remember($cacheKey, $this->cacheTtl, function () use ($criteria, $perPage) {
+            $query = Article::query();
 
-        return $query->paginate($perPage);
+            foreach ($criteria as $key => $value) {
+                $query->where($key, 'like', '%' . $value . '%');
+            }
+
+            return $query->paginate($perPage);
+        });
+    }
+
+    /**
+     * Clears the cache for all articles.
+     *
+     * @return void
+     */
+    private function clearCache(): void
+    {
+        Cache::forget('articles.all');
     }
 
 }
