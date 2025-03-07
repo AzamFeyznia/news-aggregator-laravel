@@ -22,7 +22,7 @@ class ArticleRepository implements ArticleRepositoryInterface
         DB::beginTransaction();
 
         try {
-            Article::updateOrCreate(
+            Article::firstOrCreate(
                 ['url' => $articleData->url], // Find by URL
                 [
                     'title' => $articleData->title,
@@ -54,8 +54,8 @@ class ArticleRepository implements ArticleRepositoryInterface
         DB::beginTransaction();
 
         try {
-            $articleDataCollection->chunk(100, function ($chunk) {
-                $records = $chunk->map(function (ArticleData $data) {
+            $records = $articleDataCollection
+                ->map(function (ArticleData $data) {
                     return [
                         'title' => $data->title,
                         'description' => $data->description,
@@ -67,10 +67,10 @@ class ArticleRepository implements ArticleRepositoryInterface
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                })->toArray();
+                })
+                ->toArray();
 
-                Article::insertOrIgnore($records);
-            });
+            Article::insertOrIgnore($records);
 
             DB::commit();
         } catch (Throwable $e) {
