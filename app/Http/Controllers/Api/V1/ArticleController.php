@@ -15,7 +15,8 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $criteria = $request->only('q', 'source', 'category');
-        $articles = $this->articleRepository->search($criteria);
+        $perPage = $request->input('per_page', 10); // Default to 10 articles per page
+        $articles = $this->articleRepository->search($criteria, $perPage);
 
         return ArticleResource::collection($articles);
     }

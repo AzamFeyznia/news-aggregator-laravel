@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\DataTransferObjects\ArticleData;
 use App\Models\Article;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -105,9 +106,10 @@ class ArticleRepository implements ArticleRepositoryInterface
      * Searches for articles based on the given criteria.
      *
      * @param array $criteria An array of key-value pairs to search by (e.g., ['title' => 'keyword', 'source' => 'The Guardian'])
-     * @return Collection<Article>
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function search(array $criteria): Collection
+    public function search(array $criteria, int $perPage = 10) : LengthAwarePaginator
     {
         $query = Article::query();
 
@@ -115,7 +117,7 @@ class ArticleRepository implements ArticleRepositoryInterface
             $query->where($key, 'like', '%' . $value . '%');
         }
 
-        return $query->get();
+        return $query->paginate($perPage);
     }
 
 }
