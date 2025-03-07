@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
+use App\Models\Article;
 use App\Repositories\ArticleRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -21,14 +22,8 @@ class ArticleController extends Controller
         return ArticleResource::collection($articles);
     }
 
-    public function show(int $id)
+    public function show(Article $article)
     {
-        $article = $this->articleRepository->findById($id);
-
-        if (!$article) {
-            return response()->json(['message' => 'Article not found'], 404);
-        }
-
         return new ArticleResource($article);
     }
 
