@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,5 +16,19 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                $renderer = app('App\Services\ApiExceptionRenderer');
+                return $renderer->render($e);
+            }
+
+            return null;
+        });
+
+        $exceptions->report(function (Throwable $e) {
+            Log::error($e->getMessage(), [
+                'exception' => $e,
+                'request' => request()->all(),
+            ]);
+        });
     })->create();
