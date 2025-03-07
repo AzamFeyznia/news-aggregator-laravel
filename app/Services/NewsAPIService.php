@@ -5,7 +5,6 @@ namespace App\Services;
 use App\DataTransferObjects\ArticleData;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -63,6 +62,11 @@ class NewsAPIService implements DataFetchingServiceInterface
             Log::error('Error fetching articles from NewsAPI: ' . $e->getMessage());
             return collect();
         }
+    }
+
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
     }
 
 }

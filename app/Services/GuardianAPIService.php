@@ -61,4 +61,9 @@ class GuardianAPIService implements DataFetchingServiceInterface
         }
     }
 
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
+    }
+
 }

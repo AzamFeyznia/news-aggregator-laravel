@@ -1,0 +1,32 @@
+{
+    "status": "ok",
+    "totalResults": 2,
+    "articles": [
+        {
+            "source": {
+                "id": "associated-press",
+                "name": "Associated Press"
+            },
+            "author": "Author",
+            "title": "Title 1",
+            "description": "Description 1",
+            "url": "https://example.com/article1",
+            "urlToImage": "https://example.com/image1.jpg",
+            "publishedAt": "2024-10-28T10:00:00Z",
+            "content": "Content 1"
+        },
+        {
+            "source": {
+                "id": "associated-press",
+                "name": "Associated Press"
+            },
+            "author": "Author2",
+            "title": "Title 2",
+            "description": "Description 2",
+            "url": "https://example.com/article2",
+            "urlToImage": "https://example.com/image2.jpg",
+            "publishedAt": "2024-10-28T11:00:00Z",
+            "content": "Content 2"
+        }
+    ]
+}

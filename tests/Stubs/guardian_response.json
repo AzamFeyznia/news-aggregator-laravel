@@ -1,0 +1,40 @@
+{
+    "response": {
+        "status": "ok",
+        "userTier": "developer",
+        "total": 7197,
+        "startIndex": 1,
+        "pageSize": 10,
+        "currentPage": 1,
+        "pages": 720,
+        "orderBy": "relevance",
+        "results": [
+            {
+                "id": "world/2024/oct/27/china-xi-jinping-consolidates-power-reshuffle",
+                "type": "article",
+                "sectionId": "world",
+                "sectionName": "World news",
+                "webPublicationDate": "2024-10-27T12:34:56Z",
+                "webTitle": "Title 1",
+                "webUrl": "https://www.theguardian.com/world/2024/oct/27/china-xi-jinping-consolidates-power-reshuffle",
+                "apiUrl": "https://content.guardianapis.com/world/2024/oct/27/china-xi-jinping-consolidates-power-reshuffle",
+                "isHosted": false,
+                "pillarId": "pillar/news",
+                "pillarName": "News"
+            },
+            {
+                "id": "sport/2024/oct/27/ireland-new-zealand-rugby-union-match-report",
+                "type": "article",
+                "sectionId": "sport",
+                "sectionName": "Sport",
+                "webPublicationDate": "2024-10-27T11:22:33Z",
+                "webTitle": "Title 2",
+                "webUrl": "https://www.theguardian.com/sport/2024/oct/27/ireland-new-zealand-rugby-union-match-report",
+                "apiUrl": "https://content.guardianapis.com/sport/2024/oct/27/ireland-new-zealand-rugby-union-match-report",
+                "isHosted": false,
+                "pillarId": "pillar/sport",
+                "pillarName": "Sport"
+            }
+        ]
+    }
+}

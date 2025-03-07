@@ -1,0 +1,79 @@
+{
+    "status": "OK",
+    "copyright": "Copyright (c) 2024 The New York Times Company. All Rights Reserved.",
+    "response": {
+        "docs": [
+            {
+                "abstract": "A summary of the news about title 1.",
+                "web_url": "https://www.nytimes.com/2024/10/27/us/politics/some-article.html",
+                "snippet": "Test",
+                "lead_paragraph": "This is lead paragraph.",
+                "print_section": "A",
+                "print_page": "1",
+                "source": "The New York Times",
+                "headline": {
+                    "main": "Title 1",
+                    "kicker": null,
+                    "content_kicker": null,
+                    "print_headline": "Title 1",
+                    "name": null,
+                    "seo": null,
+                    "sub": null
+                },
+                "keywords": [
+                    {
+                        "name": "subject",
+                        "value": "Elections",
+                        "major": "N"
+                    }
+                ],
+                "pub_date": "2024-10-27T09:00:11+0000",
+                "news_desk": "Politics",
+                "document_type": "article",
+                "section_name": "U.S.",
+                "type_of_material": "News",
+                "_id": "nyt://article/some-id",
+                "word_count": 927,
+                "uri": "nyt://article/some-id"
+            },
+            {
+                "abstract": "Summary of the news.",
+                "web_url": "https://www.nytimes.com/2024/10/27/world/some-other-article.html",
+                "snippet": "Snippet",
+                "lead_paragraph": "Lead of the paragraph.",
+                "print_section": "A",
+                "print_page": "4",
+                "source": "The New York Times",
+                "headline": {
+                    "main": "Title 2",
+                    "kicker": null,
+                    "content_kicker": null,
+                    "print_headline": "Title 2",
+                    "name": null,
+                    "seo": null,
+                    "sub": null
+                },
+                "keywords": [
+                    {
+                        "name": "subject",
+                        "value": "International Relations",
+                        "major": "N"
+                    }
+                ],
+                "pub_date": "2024-10-27T05:00:08+0000",
+                "news_desk": "Foreign",
+                "document_type": "article",
+                "section_name": "World",
+                "type_of_material": "News",
+                "_id": "nyt://article/some-other-id",
+                "word_count": 1147,
+                "uri": "nyt://article/some-other-id"
+            }
+        ],
+        "meta": {
+            "hits": 9960,
+            "offset": 0,
+            "time": 21
+        }
+    }
+}

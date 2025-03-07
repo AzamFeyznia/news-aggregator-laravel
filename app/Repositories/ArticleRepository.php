@@ -127,7 +127,12 @@ class ArticleRepository implements ArticleRepositoryInterface
             $query = Article::query();
 
             foreach ($criteria as $key => $value) {
-                $query->where($key, 'like', '%' . $value . '%');
+                $query = match ($key) {
+                    'q' => $query->search($value),  // Use the search scope
+                    'source' => $query->where('source', $value),
+                    'category' => $query->where('category', $value),
+                    default => $query, // Ignore unknown criteria
+                };
             }
 
             return $query->paginate($perPage);
