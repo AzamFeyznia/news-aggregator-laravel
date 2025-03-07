@@ -6,6 +6,7 @@ use App\DataTransferObjects\ArticleData;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class NewYorkTimesService implements DataFetchingServiceInterface
 {
@@ -35,17 +36,25 @@ class NewYorkTimesService implements DataFetchingServiceInterface
 
             $data = json_decode($response->getBody(), true);
 
-            return collect($data['response']['docs'] ?? [])->map(function ($article) {
-                return ArticleData::fromArray([
-                    'title' => $article['headline']['main'] ?? null,
-                    'description' => $article['snippet'] ?? null,
-                    'content' => $article['lead_paragraph'] ?? null,
-                    'url' => $article['web_url'] ?? null,
-                    'source' => 'New York Times',
-                    'category' => $article['news_desk'] ?? null,
-                    'published_at' => $article['pub_date'] ?? null,
-                ]);
-            });
+            return collect($data['response']['docs'] ?? [])
+                ->map(function ($article) {
+                    try {
+                        return ArticleData::fromArray([
+                            'title' => $article['headline']['main'] ?? null,
+                            'description' => $article['snippet'] ?? null,
+                            'content' => $article['lead_paragraph'] ?? null,
+                            'url' => $article['web_url'] ?? null,
+                            'source' => 'New York Times',
+                            'category' => $article['news_desk'] ?? null,
+                            'published_at' => $article['pub_date'] ?? null,
+                        ]);
+                    } catch (ValidationException $e) {
+                        Log::warning('Validation error for article: ' . $e->getMessage() . ' URL: ' . ($article['url'] ?? 'N/A'));
+                        return null;
+                    }
+                })
+                ->filter()
+                ->values();
         } catch (\Exception $e) {
             // Log the error
             Log::error('Error fetching articles from New York Times: ' . $e->getMessage());

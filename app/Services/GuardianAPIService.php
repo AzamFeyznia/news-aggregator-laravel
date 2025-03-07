@@ -6,6 +6,7 @@ use App\DataTransferObjects\ArticleData;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class GuardianAPIService implements DataFetchingServiceInterface
 {
@@ -34,17 +35,25 @@ class GuardianAPIService implements DataFetchingServiceInterface
 
             $data = json_decode($response->getBody(), true);
 
-            return collect($data['response']['results'] ?? [])->map(function ($article) {
-                return ArticleData::fromArray([
-                    'title' => $article['webTitle'] ?? null,
-                    'description' => null, // The Guardian API doesn't have a direct description field
-                    'content' => null, // We can fetch content from each article page if necessary
-                    'url' => $article['webUrl'] ?? null,
-                    'source' => 'The Guardian',
-                    'category' => $article['sectionName'] ?? null,
-                    'published_at' => $article['webPublicationDate'] ?? null,
-                ]);
-            });
+            return collect($data['response']['results'] ?? [])
+                ->map(function ($article) {
+                    try {
+                        return ArticleData::fromArray([
+                            'title' => $article['webTitle'] ?? null,
+                            'description' => null, // The Guardian API doesn't have a direct description field
+                            'content' => null, // We can fetch content from each article page if necessary
+                            'url' => $article['webUrl'] ?? null,
+                            'source' => 'The Guardian',
+                            'category' => $article['sectionName'] ?? null,
+                            'published_at' => $article['webPublicationDate'] ?? null,
+                        ]);
+                    } catch (ValidationException $e) {
+                        Log::warning('Validation error for article: ' . $e->getMessage() . ' URL: ' . ($article['url'] ?? 'N/A'));
+                        return null;
+                    }
+                })
+                ->filter()
+                ->values();
         } catch (\Exception $e) {
             // Log the error
             Log::error('Error fetching articles from The Guardian: ' . $e->getMessage());

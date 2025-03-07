@@ -5,7 +5,9 @@ namespace App\Services;
 use App\DataTransferObjects\ArticleData;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class NewsAPIService implements DataFetchingServiceInterface
 {
@@ -36,17 +38,26 @@ class NewsAPIService implements DataFetchingServiceInterface
 
             $data = json_decode($response->getBody(), true);
 
-            return collect($data['articles'] ?? [])->map(function ($article) {
-                return ArticleData::fromArray([
-                    'title' => $article['title'] ?? null,
-                    'description' => $article['description'] ?? null,
-                    'content' => $article['content'] ?? null,
-                    'url' => $article['url'] ?? null,
-                    'source' => 'NewsAPI',
-                    'category' => $article['category'] ?? null,
-                    'published_at' => $article['publishedAt'] ?? null,
-                ]);
-            });
+            return collect($data['articles'] ?? [])
+                ->map(function ($article) {
+                    try {
+                        return ArticleData::fromArray([
+                            'title' => $article['title'] ?? null,
+                            'description' => $article['description'] ?? null,
+                            'content' => $article['content'] ?? null,
+                            'url' => $article['url'] ?? null,
+                            'source' => 'NewsAPI',
+                            'category' => $article['category'] ?? null,
+                            'published_at' => $article['publishedAt'] ?? null,
+                        ]);
+
+                    } catch (ValidationException $e) {
+                        Log::warning('Validation error for article: ' . $e->getMessage() . ' URL: ' . ($article['url'] ?? 'N/A'));
+                        return null;
+                    }
+                })
+                ->filter()
+                ->values();
         } catch (\Exception $e) {
             // Log the error
             Log::error('Error fetching articles from NewsAPI: ' . $e->getMessage());
